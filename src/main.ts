@@ -1,7 +1,10 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from './modules/auth/jwt.auth.guard';
+import { ResponseInterceptor } from './common/interceptor/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -9,6 +12,12 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({ stopAtFirstError: true, whitelist: true }),
   );
+
+  const reflector = app.get(Reflector);
+
+  app.useGlobalGuards(new JwtAuthGuard(reflector));
+
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
   const config = new DocumentBuilder()
     .setTitle('Cyber Media NodeJS')

@@ -7,12 +7,15 @@ import {
   Post,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { VideoTypeService } from './video-type.service';
 import { Request } from 'express';
 import { TVideoType } from 'src/common/@type/video-type';
 import { CreateVideoTypeDto } from './dto/create-video-type.dto';
 import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { Public } from 'src/common/decorater/public.decorater';
 
 @Controller('video')
 @ApiTags('Video Type nè ku')
@@ -24,6 +27,8 @@ export class VideoTypeController {
     summary: 'Đây là endpoint để lấy list video-type',
     description: 'ABC',
   })
+  // @Public()
+  @UseGuards(AuthGuard('protect'))
   @Get('video-type')
   async getVideoType(
     @Query('pageIndex') page: number,
@@ -31,6 +36,7 @@ export class VideoTypeController {
     // @Headers('accessToken') accessToken: string,
     @Req() req: Request,
   ) {
+    console.log(req?.user);
     console.log(page, pageSize);
     return await this.videoTypeService.getVideoType(page, pageSize);
   }
